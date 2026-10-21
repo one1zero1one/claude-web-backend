@@ -10,12 +10,7 @@ credit for the design goes there.
 
 ## How it works
 
-```
-page ──POST /event──▶ server.mjs ──append──▶ events.jsonl
-                          │
-                          └──stdout line──▶ Monitor ──wakes──▶ Claude Code
-page ◀──GET /state (1s)── server.mjs ◀──read── state.json ◀──write── Claude Code
-```
+![The moving parts: page, server, two files, Monitor and agent](docs/architecture.svg)
 
 - **page → agent.** The page POSTs `{"type":"click"}`. The server appends one line,
   `{"type":"click","seq":3,"at":"…"}`, to `events.jsonl` and prints the same line. Claude Code
@@ -26,6 +21,10 @@ page ◀──GET /state (1s)── server.mjs ◀──read── state.json �
 - **Replay.** Events carry a `seq`; `state.json` carries `handled`, the last seq the agent
   processed. A restarted agent runs `server.mjs pending` to get the presses it missed. The
   page keeps the button disabled until `handled` reaches the seq of its last press.
+
+One press, end to end:
+
+![One click, round trip: page to server to Monitor to agent, then state.json back to the page](docs/click-sequence.svg)
 
 ### The two-file contract
 
